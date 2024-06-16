@@ -17,8 +17,8 @@ class Book(models.Model):
 
 
 class Order(models.Model):
-	product = models.ForeignKey(Book, max_length=200, null=True, blank=True, on_delete = models.SET_NULL)
-	created =  models.DateTimeField(auto_now_add=True) 
+    product = models.ForeignKey(Book, max_length=200, null=True, blank=True, on_delete = models.SET_NULL)
+    created =  models.DateTimeField(auto_now_add=True) 
 
-	def __str__(self):
-		return self.product.title
+    def __str__(self):
+        return self.product.title
