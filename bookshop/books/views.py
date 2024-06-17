@@ -27,7 +27,7 @@ def paginator(request, books):
 class BooksListView(ListView):
     model = Book
     template_name = 'books/index.html'
-    # paginate_by = 10
+    paginate_by = BOOKS_PER_PAGE
 
 
 class BooksDetailView(DetailView):

@@ -5,33 +5,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+# 'django-insecure-6+i1w_oh^&+e&74rsv1p2j%pm#1*owoxj!mxg#gnsx15caus=='
+SECRET_KEY =  os.getenv(key='SECRET_KEY')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =  os.getenv(key='SECRET_KEY')  # 'django-insecure-6+i1w_oh^&+e&74rsv1p2j%pm#1*owoxj!mxg#gnsx15caus=='
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
 
-# Application definition
 
 INSTALLED_APPS = [
     'books',
-    'users.apps.UsersConfig',
+    'users',
+    'cart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +45,7 @@ ROOT_URLCONF = 'bookshop.urls'
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'books:index'
 
-BOOKS_PER_PAGE = 5
+BOOKS_PER_PAGE = 2
 DESCRIPTION_SYMBOLS = 100
 
 TEMPLATES = [
@@ -63,7 +59,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # 'core.context_processors.year.year'
             ],
         },
     },
@@ -71,9 +66,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bookshop.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     # 'default': {
@@ -85,14 +77,11 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': '127.0.0.1',  # os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT')
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,9 +99,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -124,13 +110,10 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CACHES = {
@@ -139,7 +122,16 @@ CACHES = {
     }
 }
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'default': {
+            'size': (300, 300),
+            'crop': True,
+            'upscale': False,
+        },
+    },
+}
+
+THUMBNAIL_BASEDIR = 'thumbnails'

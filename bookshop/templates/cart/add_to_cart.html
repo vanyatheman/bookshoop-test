@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Add {{ book.title }} to Cart{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="card">
+        <div class="card-header">
+          Add {{ book.title }} to Cart
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Add</button>
+          </form>
+          <a href="{% url 'books:detail' book.id %}" class="btn btn-link mt-2">Back to Book</a>
+        </div> <!-- card body -->
+      </div> <!-- card -->
+    </div> <!-- col -->
+  </div> <!-- row -->
+{% endblock %}

@@ -1,24 +1,33 @@
 {% extends 'base.html' %}
-{% block content %}
-<hr>
-<div class="row">
-    {% for each in object_list %}
-    <div class="col">
-        <div class="card" style="width: 13rem;">
-            <img src="{{ each.image_url }}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{ each.title|slice:":25"}} ...</h5>
-                <p class="card-text">${{ each.price|floatformat:2 }}</p>                
-                {% if each.book_available is True %}
-                <li class="text-primary">Available</li>
-                {% else %}
-                <li class="text-danger">Out of Stock !</li>
-                {% endif %}<br>
-                <a href="{% url 'books:detail' each.id %}" class="btn btn-primary">View</a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
+{% load thumbnail %}
 
-{% endblock content %}
+{% block title %}Bookshop - Home{% endblock %}
+
+{% block content %}
+  <h1>Book List</h1>
+  <div class="row">
+    {% for book in object_list %}
+      <div class="col-md-3">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            
+            {% thumbnail book.cover "200x300" crop="center" upscale=False as im %}
+              <img class="card-img" src="{{ im.url }}">
+            {% endthumbnail %}
+            <h5 class="card-title">{{ book.title }}</h5>
+            <p class="card-text">{{ book.description|slice:":25" }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <a href="{% url 'books:detail' book.id %}" class="btn btn-sm btn-outline-secondary">View</a>
+                <a href="{% url 'cart:add_to_cart' book.id %}" class="btn btn-sm btn-outline-primary">Add to Cart</a>
+              </div>
+              <small class="text-muted">${{ book.price }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% include 'books/includes/paginator.html' %}
+{% endblock %}
