@@ -13,7 +13,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-4">
-              {% thumbnail book.cover "300x300" crop="center" upscale=False as im %}
+              {% thumbnail book.cover "200x300" crop="center" upscale=False as im %}
                 <img class="card-img" src="{{ im.url }}" alt="{{ book.title }}">
               {% endthumbnail %}
             </div>
@@ -23,15 +23,14 @@
               <p><strong>Publisher:</strong> {{ book.publisher }}</p>
               <p><strong>Price:</strong> ${{ book.price }}</p>
               <p><strong>Publish Date:</strong> {{ book.publish_date }}</p>
-              <!-- Add other fields as needed -->
               <div class="mt-4">
                 <a href="{% url 'cart:add_to_cart' book.id %}" class="btn btn-primary">Add to Cart</a>
                 <a href="{% url 'books:index' %}" class="btn btn-secondary ml-2">Back to Book List</a>
               </div>
             </div>
           </div>
-        </div> <!-- card body -->
-      </div> <!-- card -->
-    </div> <!-- col -->
-  </div> <!-- row -->
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

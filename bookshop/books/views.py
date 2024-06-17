@@ -12,16 +12,10 @@ from django.db.models import Q
 from django.http import JsonResponse
 
 from .models import Book, Order
+from cart.models import Cart
 from bookshop.settings import BOOKS_PER_PAGE, DESCRIPTION_SYMBOLS
 
 import json
-
-
-def paginator(request, books):
-    paginator = Paginator(books, BOOKS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return page_obj
 
 
 class BooksListView(ListView):
@@ -29,10 +23,32 @@ class BooksListView(ListView):
     template_name = 'books/index.html'
     paginate_by = BOOKS_PER_PAGE
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            cart = Cart.objects.filter(user=self.request.user).first()
+            total_items = cart.total_quantity if cart else 0
+        else:
+            total_items = 0
+
+        context['total_items'] = total_items
+        return context
+
 
 class BooksDetailView(DetailView):
     model = Book
     template_name = 'books/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            cart = Cart.objects.filter(user=self.request.user).first()
+            total_items = cart.total_quantity if cart else 0
+        else:
+            total_items = 0
+
+        context['total_items'] = total_items
+        return context
 
 
 class SearchResultsListView(ListView):
@@ -44,6 +60,18 @@ class SearchResultsListView(ListView):
         return Book.objects.filter(
             Q(title__icontains=query) | Q(author__icontains=query) | Q(publish_date__icontains=query)  # | Q(isbn__icontains=query)
         )
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            cart = Cart.objects.filter(user=self.request.user).first()
+            total_items = cart.total_quantity if cart else 0
+        else:
+            total_items = 0
+
+        context['total_items'] = total_items
+        return context
+
 
 class BookCheckoutView(LoginRequiredMixin, DetailView):
     model = Book

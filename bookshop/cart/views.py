@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.forms import modelform_factory
 from .models import Cart, CartItem
 from .forms import CartItemForm
 from books.models import Book
@@ -7,23 +8,26 @@ from books.models import Book
 @login_required
 def cart_view(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
-    return render(request, 'cart/cart.html', {'cart': cart})
+    print(">>> request.user", request.user)
+    total_items = cart.total_quantity
+    context = {'cart': cart, 'total_items': total_items}
+    return render(request, 'cart/cart.html', context)
 
 @login_required
 def add_to_cart(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, book=book)
+    cart_item, _ = CartItem.objects.get_or_create(cart=cart, book=book)
 
     if request.method == 'POST':
-        form = CartItemForm(request.POST, instance=cart_item)
+        form = modelform_factory(CartItem, fields=['quantity'])(request.POST, instance=cart_item)
         if form.is_valid():
-            cart_item.quantity += form.cleaned_data['quantity']
+            cart_item.quantity = form.cleaned_data['quantity']
             cart_item.save()
             return redirect('cart:cart_view')
     else:
-        form = CartItemForm(instance=cart_item)
-    
+        form = modelform_factory(CartItem, fields=['quantity'])(instance=cart_item)
+
     return render(request, 'cart/add_to_cart.html', {'form': form, 'book': book})
 
 @login_required

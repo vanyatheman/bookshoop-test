@@ -124,14 +124,5 @@ CACHES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-THUMBNAIL_ALIASES = {
-    '': {
-        'default': {
-            'size': (300, 300),
-            'crop': True,
-            'upscale': False,
-        },
-    },
-}
-
-THUMBNAIL_BASEDIR = 'thumbnails'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')

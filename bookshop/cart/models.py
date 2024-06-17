@@ -9,10 +9,22 @@ class Cart(models.Model):
     def __str__(self):
         return f'Cart of {self.user.username}'
 
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
+
+    @property
+    def total_price(self):
+        return sum(item.subtotal for item in self.items.all())
+
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    cart = models.ForeignKey('Cart', related_name='items', on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f'{self.quantity} of {self.book.title}'
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.book.price

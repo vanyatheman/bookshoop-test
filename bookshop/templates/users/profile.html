@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+  <h1>Profile</h1>
+  <p>Welcome to test bookshop, {{ user.username }}!</p>
+  <p>Your email: {{ user.email }}</p>
+  <a href="{% url 'users:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+  <a href="{% url 'users:password_change' %}" class="btn btn-secondary">Change Password</a>
+  <a href="{% url 'users:logout' %}" class="btn btn-danger">Logout</a>
+{% endblock %}
