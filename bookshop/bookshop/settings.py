@@ -71,7 +71,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": '127.0.0.1', # os.getenv('DB_HOST'),  # 
+        "HOST": os.getenv('DB_HOST'),  #'127.0.0.1',  # 
         "PORT": os.getenv("DB_PORT"),
     }
 }
@@ -126,3 +126,6 @@ LOGIN_URL = "users:login"
 LOGIN_REDIRECT_URL = "books:index"
 
 BOOKS_PER_PAGE = os.getenv("BOOKS_PER_PAGE")
+
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")

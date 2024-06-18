@@ -1,14 +1,19 @@
 import json
 
-from django.http import JsonResponse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.forms import modelform_factory
-from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView
+from django.forms import modelform_factory
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DetailView, TemplateView
 
 from books.models import Book
+
 from .models import Cart, CartItem
+from .utils import (create_line_items, create_stripe_checkout_session,
+                    get_cart_with_items)
 
 
 @login_required
@@ -27,7 +32,7 @@ def add_to_cart(request, book_id):
     if not book.book_available:
         return redirect("books:detail", pk=book_id)
 
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
     cart_item, _ = CartItem.objects.get_or_create(cart=cart, book=book)
 
     if request.method == "POST":
@@ -68,15 +73,67 @@ class CartCheckoutView(LoginRequiredMixin, DetailView):
         )
 
 
+@csrf_exempt
+def stripe_config(request):
+    if request.method == 'GET':
+        stripe_config = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
+        return JsonResponse(stripe_config, safe=False)
+
+
+@csrf_exempt
 @login_required
-def paymentComplete(request):
-    body = json.loads(request.body)
-    user = request.user
-    cart = Cart.objects.get(user=user)
+def create_checkout_session(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        cart_id = data.get('cart_id')
 
-    for item in cart.items.all():
-        print(f'Paid for {item.quantity} of {item.book.title}')
+        cart = get_cart_with_items(cart_id, request.user)
+        if not cart:
+            return JsonResponse({'error': 'Cart not found'}, status=404)
 
-    cart.items.all().delete()
+        line_items = create_line_items(cart)
 
-    return JsonResponse("Payment completed!", safe=False)
+        domain_url = 'http://localhost:8000/'
+        try:
+            checkout_session = create_stripe_checkout_session(
+                line_items,
+                domain_url,
+                cart
+            )
+            cart.items.all().delete()
+            return JsonResponse({'sessionId': checkout_session['id']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+# @csrf_exempt
+# def stripe_webhook(request):
+#     payload = request.body
+#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+#     event = None
+
+#     try:
+#         event = stripe.Webhook.construct_event(
+#             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+#         )
+#     except ValueError as e:
+#         return HttpResponse(status=400)
+#     except stripe.error.SignatureVerificationError as e:
+#         return HttpResponse(status=400)
+
+#     if event['type'] == 'checkout.session.completed':
+#         session = event['data']['object']
+
+#         clear_cart(session)
+
+#     return HttpResponse(status=200)
+
+
+class SuccessView(TemplateView):
+    template_name = 'cart/success.html'
+
+
+class CancelledView(TemplateView):
+    template_name = 'cart/cancelled.html'

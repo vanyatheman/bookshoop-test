@@ -12,7 +12,12 @@ urlpatterns = [
         views.remove_from_cart,
         name="remove_from_cart"
     ),
-    path("<int:pk>/checkout/", views.CartCheckoutView.as_view(), name='checkout'),
-    path("complete/", views.paymentComplete, name="complete"),
-
+    path('config/', views.stripe_config),
+    path(
+        'create-checkout-session/',
+        views.create_checkout_session,
+        name='checkout2'
+    ),
+    path('success/', views.SuccessView.as_view()),
+    path('cancelled/', views.CancelledView.as_view()),
 ]

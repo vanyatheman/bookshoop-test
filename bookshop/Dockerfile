@@ -16,7 +16,4 @@ RUN addgroup --system app && adduser --system --group app
 RUN chown -R app:app /app
 RUN chmod u+x /app/docker-start.sh
 
-EXPOSE 8000
-
-
 CMD ["/app/docker-start.sh"]

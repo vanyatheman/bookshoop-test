@@ -44,7 +44,7 @@
             </div>
           {% endif %}
           <div class="mt-4">
-            <a href="{% url 'cart:checkout' cart.pk %}" class="btn btn-success" role="button">Buy Now</a>
+            <button class="btn btn-success" id="submitBtn" data-cart-id="{{ cart.id }}">Purchase</button>
             <a href="{% url 'books:index' %}" class="btn btn-primary">Continue Shopping</a>
           </div>
         </div>
