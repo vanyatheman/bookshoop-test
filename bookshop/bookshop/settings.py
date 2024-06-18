@@ -41,11 +41,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "bookshop.urls"
 
-LOGIN_URL = "users:login"
-LOGIN_REDIRECT_URL = "books:index"
-
-BOOKS_PER_PAGE = 2
-DESCRIPTION_SYMBOLS = 100
 
 TEMPLATES = [
     {
@@ -76,7 +71,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": "127.0.0.1",  # os.getenv('DB_HOST'),
+        "HOST": '127.0.0.1', # os.getenv('DB_HOST'),  # 
         "PORT": os.getenv("DB_PORT"),
     }
 }
@@ -109,7 +104,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 MEDIA_URL = "media/"
@@ -125,3 +121,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "books:index"
+
+BOOKS_PER_PAGE = os.getenv("BOOKS_PER_PAGE")

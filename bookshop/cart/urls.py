@@ -12,7 +12,7 @@ urlpatterns = [
         views.remove_from_cart,
         name="remove_from_cart"
     ),
-    path("checkout/", views.CartCheckoutView.as_view(), name='checkout'),
+    path("<int:pk>/checkout/", views.CartCheckoutView.as_view(), name='checkout'),
     path("complete/", views.paymentComplete, name="complete"),
 
 ]

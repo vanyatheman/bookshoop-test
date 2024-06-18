@@ -1,21 +1,20 @@
-import json
-
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
-from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, ListView
-from django.views.generic.edit import CreateView
 
-from bookshop.settings import BOOKS_PER_PAGE, DESCRIPTION_SYMBOLS
+from bookshop.settings import BOOKS_PER_PAGE
 from cart.models import Cart
 
-from .models import Book, Order
+from .models import Book
+
+
+def get_total_items(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+        total_items = cart.total_quantity if cart else 0
+    else:
+        total_items = 0
+
+    return total_items
 
 
 class BooksListView(ListView):
@@ -25,12 +24,7 @@ class BooksListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            cart = Cart.objects.filter(user=self.request.user).first()
-            total_items = cart.total_quantity if cart else 0
-        else:
-            total_items = 0
-
+        total_items = get_total_items(self.request)
         context["total_items"] = total_items
         return context
 
@@ -41,12 +35,7 @@ class BooksDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            cart = Cart.objects.filter(user=self.request.user).first()
-            total_items = cart.total_quantity if cart else 0
-        else:
-            total_items = 0
-
+        total_items = get_total_items(self.request)
         context["total_items"] = total_items
         return context
 
@@ -65,19 +54,6 @@ class SearchResultsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            cart = Cart.objects.filter(user=self.request.user).first()
-            total_items = cart.total_quantity if cart else 0
-        else:
-            total_items = 0
-
+        total_items = get_total_items(self.request)
         context["total_items"] = total_items
         return context
-
-
-def paymentComplete(request):
-    body = json.loads(request.body)
-    print("BODY:", body)
-    product = Book.objects.get(id=body["productId"])
-    Order.objects.create(product=product)
-    return JsonResponse("Payment completed!", safe=False)

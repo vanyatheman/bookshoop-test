@@ -14,11 +14,3 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class Order(models.Model):
-    product = models.ForeignKey(Book, null=True, blank=True, on_delete=models.SET_NULL)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.product.title

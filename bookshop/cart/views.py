@@ -5,10 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.forms import modelform_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 
 from books.models import Book
-from .forms import CartItemForm
 from .models import Cart, CartItem
 
 
@@ -24,6 +23,10 @@ def cart_view(request):
 @login_required
 def add_to_cart(request, book_id):
     book = get_object_or_404(Book, id=book_id)
+
+    if not book.book_available:
+        return redirect("books:detail", pk=book_id)
+
     cart, created = Cart.objects.get_or_create(user=request.user)
     cart_item, _ = CartItem.objects.get_or_create(cart=cart, book=book)
 
@@ -47,12 +50,14 @@ def add_to_cart(request, book_id):
 
 @login_required
 def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    cart_item = get_object_or_404(
+        CartItem, id=item_id, cart__user=request.user
+    )
     cart_item.delete()
     return redirect("cart:cart_view")
 
 
-class CartCheckoutView(LoginRequiredMixin, ListView):
+class CartCheckoutView(LoginRequiredMixin, DetailView):
     model = Cart
     template_name = "cart/checkout.html"
     login_url = "login"
@@ -73,6 +78,5 @@ def paymentComplete(request):
         print(f'Paid for {item.quantity} of {item.book.title}')
 
     cart.items.all().delete()
-    
-    return JsonResponse("Payment completed!", safe=False)
 
+    return JsonResponse("Payment completed!", safe=False)

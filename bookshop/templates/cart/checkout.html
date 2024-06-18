@@ -1,135 +1,98 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
-
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title></title>
-  <meta id="meta" name="viewport"
-    content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
-
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
-
-  <style type="text/css">
-    body {
-      background-color: #f0f0f0;
-
-    }
-  </style>
-</head>
-
-
-<body>
-  <div class="row justify-content-center">
-    <div class="col-md-8 p-5">
-        <div class="card">
-            <div class="card-header">
-                Checkout
-            </div>
-            <div class="card-body">
-                {% if cart.items.all %}
-                    <ul class="list-group mb-3">
-                        {% for item in cart.items.all %}
-                            <li class="list-group-item d-flex justify-content-between lh-condensed">
-                                <div>
-                                    <h6 class="my-0">{{ item.book.title }}</h6>
-                                    <small class="text-muted">{{ item.book.author }}</small>
-                                </div>
-                                <span class="text-muted">${{ item.book.price }} x {{ item.quantity }} = ${{ item.subtotal }}</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    <h5>Total Quantity: {{ cart.total_quantity }}</h5>
-                    <h5>Total Price: ${{ cart.total_price }}</h5>
-                    <a href="{% url 'payment:process' %}" class="btn btn-primary btn-lg btn-block">Proceed to Payment</a>
-                {% else %}
-                    <p>Your cart is empty.</p>
-                {% endif %}
-            </div>
-        </div>
+<div class="row justify-content-center">
+  <div class="col-md-6 p-5">
+    <div class="card">
+      <div class="card-header">
+        Checkout
+      </div>
+      <div class="card-body">
+        {% if cart.items.all %}
+          <ul class="list-group mb-3">
+            {% for item in cart.items.all %}
+              <li class="list-group-item d-flex justify-content-between lh-condensed">
+                <div>
+                  <h6 class="my-0">{{ item.book.title }}</h6>
+                  <small class="text-muted">{{ item.book.author }}</small>
+                </div>
+                <span class="text-muted">${{ item.book.price }} x {{ item.quantity }} = ${{ item.subtotal }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+          <h5>Total Quantity: {{ cart.total_quantity }}</h5>
+          <h5>Total Price: ${{ cart.total_price }}</h5>
+        {% else %}
+          <p>Your cart is empty.</p>
+        {% endif %}
+      </div>
     </div>
+  </div>
+  <div class="col-md-5 p-5">
+    <div class="card">
+      <div class="card-header">
+        PayPal Payment
+      </div>
+      <div class="card-body">
+        <div id="paypal-button-container"></div>
+      </div>
+    </div>
+  </div>
 </div>
-  
-  <!--Paypal payments-->
 
-  <div id="paypal-button-container"></div>
+<script src="https://www.paypal.com/sdk/js?client-id=AaDbFCTAdi8NU4o-x6oOaBiLLoybkvO8w3xVZ2LgPAiTRwT4dDJu5u_ZecP9OtLTDvr7GZtZk_HuM3kq&currency=USD"></script>
 
-  <script
-    src="https://www.paypal.com/sdk/js?client-id=AaDbFCTAdi8NU4o-x6oOaBiLLoybkvO8w3xVZ2LgPAiTRwT4dDJu5u_ZecP9OtLTDvr7GZtZk_HuM3kq&currency=USD"></script>
-
-  <script>
-
-    function getCookie(name) {
-      var cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-          var cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
+<script>
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
-      return cookieValue;
     }
-    var csrftoken = getCookie('csrftoken');
+    return cookieValue;
+  }
 
-    var total = '{{ cart.total_price }}';
+  var csrftoken = getCookie('csrftoken');
+  var total = '{{ cart.total_price }}';
 
-    function completeOrder() {
-        var url = "{% url 'cart:complete' %}";
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({})
-        }).then(response => response.json())
-        .then(data => {
-            alert('Transaction completed!');
-            window.location.href = "{% url 'books:index' %}";
-        });
-    }    
-
-
-
-    // Render the PayPal button into #paypal-button-container
-    paypal.Buttons({
-
-      // Set up the transaction
-      createOrder: function (data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: total
-            }
-          }]
-        });
+  function completeOrder() {
+    var url = "{% url 'cart:complete' %}";
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'X-CSRFToken': csrftoken,
       },
+      body: JSON.stringify({})
+    }).then(response => response.json())
+      .then(data => {
+        alert('Transaction completed!');
+        window.location.href = "{% url 'books:index' %}";
+      });
+  }
 
-      // Finalize the transaction
-      onApprove: function (data, actions) {
-        return actions.order.capture().then(function (details) {
-          // Show a success message to the buyer
-          completeOrder()
-          alert('Transaction completed by ' + details.payer.name.given_name + '!');
-        });
-      }
-
-
-    }).render('#paypal-button-container');
-  </script>
-</body>
-
-</html>
-
+  paypal.Buttons({
+    createOrder: function (data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: total
+          }
+        }]
+      });
+    },
+    onApprove: function (data, actions) {
+      return actions.order.capture().then(function (details) {
+        completeOrder();
+        alert('Transaction completed by ' + details.payer.name.given_name + '!');
+      });
+    }
+  }).render('#paypal-button-container');
+</script>
 {% endblock content %}
