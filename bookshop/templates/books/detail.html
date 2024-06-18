@@ -21,10 +21,14 @@
               <p class="card-text">{{ book.description }}</p>
               <p><strong>Author:</strong> {{ book.author }}</p>
               <p><strong>Publisher:</strong> {{ book.publisher }}</p>
-              <p><strong>Price:</strong> ${{ book.price }}</p>
               <p><strong>Publish Date:</strong> {{ book.publish_date }}</p>
+              <p><strong>Price:</strong> ${{ book.price|floatformat:2 }}</p>
               <div class="mt-4">
+                {% if book.book_available is True %}
                 <a href="{% url 'cart:add_to_cart' book.id %}" class="btn btn-primary">Add to Cart</a>
+                {% else %}
+                <h4 class="text-danger">Out of Stock</h4>
+                {% endif %}
                 <a href="{% url 'books:index' %}" class="btn btn-secondary ml-2">Back to Book List</a>
               </div>
             </div>
