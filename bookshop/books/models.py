@@ -1,10 +1,13 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 
 class Book(models.Model):
     title = models.CharField(max_length=150)
     author = models.CharField(max_length=100)
-    price = models.FloatField(null=True, blank=True)
+    price = models.FloatField(
+        null=True, blank=True, validators=[MinValueValidator(0.01),]
+    )
     publish_date = models.DateField()
     publisher = models.CharField(max_length=150)
     description = models.TextField(max_length=500, default=None, blank=True)

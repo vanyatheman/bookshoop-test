@@ -44,6 +44,11 @@ docker compose exec backend python manage.py createsuperuser
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 
+### Sent E-mails
+
+When a user resets password the mail with password reset link is not sent to the user e-mail, instead it goes to the /app/sent_emails directory in the backend container.
+
+
 ### Payment system
 
 - Payment system was implemented via Stripe in test developer mode
