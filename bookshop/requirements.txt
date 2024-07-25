@@ -7,3 +7,4 @@ Pillow==9.0.0
 python-dotenv==1.0.1
 sorl-thumbnail==12.6.3
 stripe==5.5.0
+django-extensions==3.2.3
